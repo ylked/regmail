@@ -2,7 +2,7 @@ package ch.hearc.nde.regmailapi.exception
 
 import java.lang.Exception
 
-class EmailAlreadyTaken: Exception() {
+class InvalidEmailFormat: Exception() {
     override val message: String
-        get() = "Email already taken"
+        get() = "Invalid email format"
 }
