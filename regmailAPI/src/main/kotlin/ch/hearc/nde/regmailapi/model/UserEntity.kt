@@ -1,6 +1,8 @@
 package ch.hearc.nde.regmailapi.model
 
 import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
@@ -11,15 +13,16 @@ data class UserEntity(
     val id: Long = 0,
 
     @Column(unique = true)
-    val email: String = "",
+    var email: String = "",
 
-    val _password: String = "",
+    var _password: String = "",
+    var verified: Boolean = false,
 
     @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(
         name = "email_verification_id",
         unique = true,
-        nullable = false
+        nullable = true
     )
     var emailVerification: EmailVerificationEntity? = null,
 
@@ -37,6 +40,14 @@ data class UserEntity(
         orphanRemoval = true
     )
     var refreshToken: MutableList<RefreshTokenEntity?> = mutableListOf(),
+
+    @CreatedDate
+    @Column(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis(),
 ): UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return mutableListOf()

@@ -43,6 +43,24 @@ class GlobalExceptionHandler {
                     e.message
                 )
             }
+            is TooManyRequests -> {
+                errorDetails = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.TOO_MANY_REQUESTS,
+                    e.message
+                )
+            }
+            is AlreadyVerified -> {
+                errorDetails = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.FORBIDDEN,
+                    e.message
+                )
+            }
+            is InvalidRecoveryToken -> {
+                errorDetails = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.UNAUTHORIZED,
+                    e.message
+                )
+            }
             is BadCredentialsException -> {
                 errorDetails = ProblemDetail.forStatusAndDetail(
                     HttpStatus.UNAUTHORIZED,

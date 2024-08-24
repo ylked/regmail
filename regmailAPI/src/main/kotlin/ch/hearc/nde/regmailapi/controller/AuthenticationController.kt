@@ -1,12 +1,12 @@
 package ch.hearc.nde.regmailapi.controller
 
 import ch.hearc.nde.regmailapi.config.AuthenticatedUser
+import ch.hearc.nde.regmailapi.dto.request.DemandRecoveryRequestDTO
+import ch.hearc.nde.regmailapi.dto.request.RecoveryRequestDTO
 import ch.hearc.nde.regmailapi.dto.request.RefreshRequestDTO
 import ch.hearc.nde.regmailapi.dto.request.RegisterRequestDTO
 import ch.hearc.nde.regmailapi.dto.response.LoginResponseDTO
 import ch.hearc.nde.regmailapi.dto.response.SimpleResponseDTO
-import ch.hearc.nde.regmailapi.exception.EmailAlreadyTaken
-import ch.hearc.nde.regmailapi.exception.InvalidEmailFormat
 import ch.hearc.nde.regmailapi.model.UserEntity
 import ch.hearc.nde.regmailapi.service.AuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,6 +60,31 @@ class AuthenticationController @Autowired constructor(
         @RequestBody dto: RefreshRequestDTO,
     ): ResponseEntity<LoginResponseDTO> {
         val response = service.refresh(dto)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/resend-verification")
+    fun resendVerification(
+        @AuthenticatedUser user: UserEntity,
+    ): ResponseEntity<SimpleResponseDTO> {
+        service.resendVerification(user)
+        return ResponseEntity.ok(SimpleResponseDTO("Verification email sent", true))
+    }
+
+    @PostMapping("/request-recovery")
+    fun requestRecovery(
+        @RequestBody dto: DemandRecoveryRequestDTO,
+    ): ResponseEntity<SimpleResponseDTO> {
+        service.requestRecovery(dto.email)
+        return ResponseEntity.ok(SimpleResponseDTO("If email matches an existing account, " +
+            "a recovery link has been sent", true))
+    }
+
+    @PostMapping("/recover")
+    fun recover(
+        @RequestBody dto: RecoveryRequestDTO,
+    ): ResponseEntity<LoginResponseDTO> {
+        val response = service.recover(dto)
         return ResponseEntity.ok(response)
     }
 }

@@ -1,0 +1,35 @@
+version: '3.0'
+services:
+  database-service:
+    container_name: "regmail-mysql"
+    image: mysql:8.2.0-oracle 
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./database:/var/lib/mysql"
+
+  adminer-service:
+    container_name: "regmail-adminer"
+    image: adminer
+    ports:
+      - "8080:8080"
+
+  api-service:
+    container_name: "regmail-api"
+    image: maven:3.9-eclipse-temurin-21 
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./regmailAPI/:/data"
+    working_dir: /data
+    command: "mvn spring-boot:run"
+    depends_on:
+      - database-service
+    environment:
+      - TZ=Europe/Berlin
+      - SPRING_MAIL_USERNAME=${REGMAIL_SMTP_USERNAME}
+      - SPRING_MAIL_PASSWORD=${REGMAIL_SMTP_PASSWORD}
+      - SPRING_DATASOURCE_PASSWORD=${DATABASE_PASSWORD}
+

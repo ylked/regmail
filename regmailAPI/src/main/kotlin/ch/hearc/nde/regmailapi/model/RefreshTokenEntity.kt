@@ -1,11 +1,8 @@
 package ch.hearc.nde.regmailapi.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 
 @Entity
 data class RefreshTokenEntity(
@@ -22,4 +19,12 @@ data class RefreshTokenEntity(
     val token: String = "",
 
     val expiresAt: Long = 0,
+
+    @CreatedDate
+    @Column(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis(),
 )

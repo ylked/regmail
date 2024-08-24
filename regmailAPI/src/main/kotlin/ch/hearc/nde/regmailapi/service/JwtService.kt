@@ -2,12 +2,10 @@ package ch.hearc.nde.regmailapi.service
 
 import ch.hearc.nde.regmailapi.model.RefreshTokenEntity
 import ch.hearc.nde.regmailapi.model.UserEntity
-import ch.hearc.nde.regmailapi.repository.UserRepository
 import ch.hearc.nde.regmailapi.tools.TokenGenerator
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -22,10 +20,10 @@ class JwtService {
     @Value("\${app.auth.token.secret}")
     private lateinit var secret: String
 
-    @Value("\${app.auth.token.access.expirationms}")
+    @Value("\${app.auth.token.access.expiration.ms}")
     private var jwtExpiration: Long = 0
 
-    @Value("\${app.auth.token.refresh.expirationms}")
+    @Value("\${app.auth.token.refresh.expiration.ms}")
     private var jwtRefreshExpiration: Long = 0
 
     private fun buildToken(

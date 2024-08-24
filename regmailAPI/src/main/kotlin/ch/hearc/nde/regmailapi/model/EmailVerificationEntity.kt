@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToOne
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 
 @Entity
 data class EmailVerificationEntity(
@@ -23,5 +25,11 @@ data class EmailVerificationEntity(
 
     var expiresAt: Long = 0,
 
-    var verified: Boolean = false,
+    @CreatedDate
+    @Column(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis(),
 )
