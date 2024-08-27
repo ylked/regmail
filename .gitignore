@@ -2,3 +2,5 @@ smtppassword
 .env
 
 database/
+
+.secret

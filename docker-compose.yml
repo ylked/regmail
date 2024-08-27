@@ -4,7 +4,7 @@ services:
     container_name: "regmail-mysql"
     image: mysql:8.2.0-oracle 
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -29,7 +29,7 @@ services:
       - database-service
     environment:
       - TZ=Europe/Berlin
-      - SPRING_MAIL_USERNAME=${REGMAIL_SMTP_USERNAME}
-      - SPRING_MAIL_PASSWORD=${REGMAIL_SMTP_PASSWORD}
-      - SPRING_DATASOURCE_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - .env
+      - .secret
 

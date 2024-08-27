@@ -16,6 +16,8 @@ import ch.hearc.nde.regmailapi.repository.RefreshTokenRepository
 import ch.hearc.nde.regmailapi.repository.UserRepository
 import ch.hearc.nde.regmailapi.tools.TokenGenerator
 import jakarta.transaction.Transactional
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationManager
@@ -58,16 +60,21 @@ class AuthenticationService @Autowired constructor(
     @Value("\${app.auth.recovery.min.delay.ms}")
     private var recoveryMinDelayMs: Long = 0
 
+    @Value("\${app.auth.emailverification.enabled}")
+    private var emailVerificationEnabled: Boolean = false
+
+    private val logger: Logger = LoggerFactory.getLogger(EmailService::class.java)
+
     @Transactional
     fun register(
         email: String,
         password: String,
     ): LoginResponseDTO {
-        if (!this.isEmailUnique(email)) {
+        if (!isEmailUnique(email)) {
             throw EmailAlreadyTaken()
         }
 
-        if (!this.isEmailValid(email)) {
+        if (!isEmailValid(email)) {
             throw InvalidEmailFormat()
         }
 
@@ -76,8 +83,13 @@ class AuthenticationService @Autowired constructor(
             _password = hashPassword(password),
         )
 
-        generateEmailVerificationCodes(user)
-        sendVerificationEmail(user)
+        if (emailVerificationEnabled) {
+            generateEmailVerificationCodes(user)
+            sendVerificationEmail(user)
+        } else {
+            logger.warn("Email verification is disabled. The user ${user.email} is automatically verified.")
+            user.verified = true
+        }
 
         return login(user)
     }
@@ -153,7 +165,7 @@ class AuthenticationService @Autowired constructor(
 
     @Transactional
     fun verifyWithToken(token: String) {
-        if (!this.isTokenValid(token)) {
+        if (!isTokenValid(token)) {
             throw InvalidEmailVerificationToken()
         }
 
@@ -163,6 +175,16 @@ class AuthenticationService @Autowired constructor(
 
     @Transactional
     fun verifyWithShortCode(user: UserEntity, shortCode: Long) {
+        if (user.verified) {
+            throw AlreadyVerified()
+        }
+        if (user.emailVerification == null) {
+            logger.error("User ${user.email} tried to verify their email but no email verification token was found." +
+                "THIS SHOULD NOT HAVE HAPPENED. A new email verification token will be generated and sent to the user.")
+            generateEmailVerificationCodes(user)
+            sendVerificationEmail(user)
+            throw InvalidEmailVerificationToken()
+        }
         if (user.emailVerification!!.shortCode != shortCode.toString()) {
             throw InvalidEmailVerificationToken()
         }
