@@ -1,10 +1,7 @@
 package ch.hearc.nde.regmailapi.controller
 
 import ch.hearc.nde.regmailapi.config.AuthenticatedUser
-import ch.hearc.nde.regmailapi.dto.request.DemandRecoveryRequestDTO
-import ch.hearc.nde.regmailapi.dto.request.RecoveryRequestDTO
-import ch.hearc.nde.regmailapi.dto.request.RefreshRequestDTO
-import ch.hearc.nde.regmailapi.dto.request.RegisterRequestDTO
+import ch.hearc.nde.regmailapi.dto.request.*
 import ch.hearc.nde.regmailapi.dto.response.LoginResponseDTO
 import ch.hearc.nde.regmailapi.dto.response.SimpleResponseDTO
 import ch.hearc.nde.regmailapi.model.UserEntity
@@ -33,7 +30,7 @@ class AuthenticationController @Autowired constructor(
 
     @PostMapping("/login")
     fun login(
-        @RequestBody dto: RegisterRequestDTO,
+        @RequestBody dto: LoginRequestDTO,
     ): ResponseEntity<LoginResponseDTO> {
         val response = service.login(dto.email, dto.password)
         return ResponseEntity.ok(response)

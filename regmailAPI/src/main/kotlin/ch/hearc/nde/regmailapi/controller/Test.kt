@@ -18,4 +18,9 @@ class Test @Autowired constructor(
     ): ResponseEntity<String> {
         return ResponseEntity.ok("Hello ${user.email}")
     }
+
+    @GetMapping("/api/public")
+    fun public(): ResponseEntity<String> {
+        return ResponseEntity.ok("Hello public")
+    }
 }

@@ -3,8 +3,12 @@ package ch.hearc.nde.regmailapi.exception
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.security.SignatureException
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.AccountStatusException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -15,96 +19,93 @@ import java.lang.Exception
 class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
-    fun handleException(e: Exception): ProblemDetail {
-        var errorDetails: ProblemDetail? = null
+    fun handleException(e: Exception, request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<Any> {
+        val status: HttpStatus
+        val message: String?
 
-        when(e) {
+        when (e) {
             is IncorrectUsernameOrPassword -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.UNAUTHORIZED,
-                    e.message
-                )
+                status = HttpStatus.UNAUTHORIZED
+                message = e.message
             }
+
             is EmailAlreadyTaken -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.CONFLICT,
-                    e.message
-                )
+                status = HttpStatus.CONFLICT
+                message = e.message
             }
+
             is InvalidEmailFormat -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.BAD_REQUEST,
-                    e.message
-                )
+                status = HttpStatus.BAD_REQUEST
+                message = e.message
             }
+
             is InvalidEmailVerificationToken -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.BAD_REQUEST,
-                    e.message
-                )
+                status = HttpStatus.BAD_REQUEST
+                message = e.message
             }
+
             is TooManyRequests -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.TOO_MANY_REQUESTS,
-                    e.message
-                )
+                status = HttpStatus.TOO_MANY_REQUESTS
+                message = e.message
             }
+
             is AlreadyVerified -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.FORBIDDEN,
-                    e.message
-                )
+                status = HttpStatus.FORBIDDEN
+                message = e.message
             }
+
             is InvalidRecoveryToken -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.UNAUTHORIZED,
-                    e.message
-                )
+                status = HttpStatus.UNAUTHORIZED
+                message = e.message
             }
+
             is BadCredentialsException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.UNAUTHORIZED,
-                    e.message
-                )
+                status = HttpStatus.UNAUTHORIZED
+                message = e.message
             }
+
             is AccountStatusException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.FORBIDDEN,
-                    e.message
-                )
+                status = HttpStatus.FORBIDDEN
+                message = e.message
             }
+
             is AccessDeniedException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.FORBIDDEN,
-                    e.message
-                )
+                status = HttpStatus.FORBIDDEN
+                message = e.message
             }
+
             is SignatureException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.FORBIDDEN,
-                    e.message
-                )
+                status = HttpStatus.FORBIDDEN
+                message = e.message
             }
+
             is ExpiredJwtException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.FORBIDDEN,
-                    e.message
-                )
+                status = HttpStatus.FORBIDDEN
+                message = e.message
             }
+
             is MalformedJwtException -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.BAD_REQUEST,
-                    e.message
-                )
+                status = HttpStatus.BAD_REQUEST
+                message = e.message
             }
+
+            is HttpMessageNotReadableException -> {
+                status = HttpStatus.BAD_REQUEST
+                message = "Request body is missing"
+            }
+
             else -> {
-                errorDetails = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    e.message
-                )
+                status = HttpStatus.INTERNAL_SERVER_ERROR
+                message = e.message
             }
         }
 
-        return errorDetails
+        response.setHeader("Access-Control-Allow-Origin", "*")
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+        response.setHeader("Access-Control-Allow-Headers", "*")
+        response.setHeader("Access-Control-Allow-Credentials", "true")
+
+        val body = mapOf("status" to status.value(), "message" to message)
+        return ResponseEntity.status(status).body(body)
     }
 }

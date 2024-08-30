@@ -25,6 +25,7 @@ class SecurityConfig @Autowired constructor(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .csrf { csrf -> csrf.disable() }
+            .cors{ cors -> cors.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/api/auth/register").permitAll()
@@ -33,6 +34,7 @@ class SecurityConfig @Autowired constructor(
                     .requestMatchers("/api/auth/request-recovery").permitAll()
                     .requestMatchers("/api/auth/recover").permitAll()
                     .requestMatchers("/api/auth/verify/**").permitAll()
+                    .requestMatchers("/api/public").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { session ->
